@@ -6,6 +6,12 @@ const app = express();
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, 'client/build')));
 
+// a little test call to make sure the local proxy worked
+app.get('/api/test', (req, res) => {
+    res.json('Success!');
+    console.log('/api/test called.');
+});
+
 // Put all API endpoints under '/api'
 app.get('/api/passwords', (req, res) => {
   const count = 5;
