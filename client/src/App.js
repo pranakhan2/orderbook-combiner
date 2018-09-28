@@ -1,48 +1,93 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
+import { Grid, Row, Col, Clearfix } from 'react-bootstrap';
 import './App.css';
 
 class App extends Component {
   state = {
     testValue: 'Failed!',
-    combinedOrderBook: null,
+    orderbook_data: null,
+    market_data: {},
+    selected_market: null,
   }
 
   componentDidMount() {
-    this.getTestValue();
-    this.getCombinedOrderBook();
+    this.getMarketData();
+    //this.getCombinedOrderBook();
   }
 
   getTestValue = () => {
     // get the test value to make sure the local proxy works
-    fetch('/api/test')
-      .then(res => res.json())
-      .then(val => this.setState({testValue: val}));
+    fetch('/api/test').then(val => this.setState({testValue: val}));
   }
 
-  getCombinedOrderBook = () => {
-    // get the combined order books from both exchanges
-    fetch('/api/combine-order-books')
+  getMarketData = () => {
+    // grab the market data available from the exchanges
+    fetch('/api/get-market-data')
       .then(res => res.json())
-      .then(val => {
-        this.setState({combinedOrderBook: val});
-        console.log('Combined Order Books: ', val);
+      .then(res => {
+        this.setState({
+          market_data: res,
+        });
+        console.log('Market summary data retrieved...');
+      });
+  }
+
+  getCombinedOrderBook = (market) => {
+    // get the combined order books from both exchanges
+    fetch('/api/get-order-books')
+      .then(res => res.json())
+      .then(res => {
+        this.setState({orderbook_data: res});
+        console.log(`Orderbook data for market ${market} recieved... `);
       });
   }
 
   render() {
+    let marketItems = Object.keys(this.state.market_data).map((market_name) =>
+      <option value={market_name} key={market_name}>{market_name}</option>
+    );
     return (
       <div className="App">
         <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
+          <h1 className="App-title">Combined Order Book Experiement</h1>
         </header>
         <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
+          To load and display combined order book information from the Poloniex and Bittrex exchanges,
+          first select a currency market from the dropdown below. Note: only markets available on both
+          of the exchanges will appear in the list.
         </p>
-        <p>
-          Test service state: {this.state.testValue}
-        </p>
+        <div className='combined-market-view'>
+          <div className='market-select center-block'>
+            <select
+              className='form-control'
+              title='Select a market to view...'
+              id='market_select'
+            >
+              <option>Select a market to view...</option>
+              {marketItems}
+            </select>
+          </div>
+          { this.state.selected_market &&
+          <div className='market-view center-block'>
+          <Grid>
+            <Row className="show-grid">
+              <Col lg={3}>
+                <div className='grid-title'>Market Summary</div>
+                <br />
+              </Col>
+              <Col lg={3}>
+                <div className='grid-title'>Bids</div>
+                <br />
+              </Col> 
+              <Col lg={3}>
+                <div className='grid-title'>Asks</div>
+                <br />
+              </Col>  
+            </Row>
+          </Grid>         
+          </div>
+          }
+        </div>
       </div>
     );
   }
