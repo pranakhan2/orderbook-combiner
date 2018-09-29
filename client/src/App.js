@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { Grid, Row, Col, Clearfix } from 'react-bootstrap';
+import Select from 'react-select';
 import './App.css';
 
 class App extends Component {
   state = {
-    testValue: 'Failed!',
     orderbook_data: null,
     market_data: {},
     selected_market: null,
@@ -15,11 +15,6 @@ class App extends Component {
     //this.getCombinedOrderBook();
   }
 
-  getTestValue = () => {
-    // get the test value to make sure the local proxy works
-    fetch('/api/test').then(val => this.setState({testValue: val}));
-  }
-
   getMarketData = () => {
     // grab the market data available from the exchanges
     fetch('/api/get-market-data')
@@ -28,10 +23,14 @@ class App extends Component {
         this.setState({
           market_data: res,
         });
-        console.log('Market summary data retrieved...');
+        console.log('Market summary data retrieved: ', res);
       });
   }
 
+  marketSelected = (selected_market) => {
+    this.setState({selected_market});
+    console.log('Market selected: ', selected_market); 
+  }
   getCombinedOrderBook = (market) => {
     // get the combined order books from both exchanges
     fetch('/api/get-order-books')
@@ -43,8 +42,12 @@ class App extends Component {
   }
 
   render() {
-    let marketItems = Object.keys(this.state.market_data).map((market_name) =>
-      <option value={market_name} key={market_name}>{market_name}</option>
+    let marketOptions = Object.keys(this.state.market_data).map((market_name) => {
+      return { value: market_name, label: market_name };
+    }); 
+    let selected_market_data = (
+      this.state.selected_market 
+        ? this.state.market_data[this.state.selected_market.value].data : null
     );
     return (
       <div className="App">
@@ -58,14 +61,11 @@ class App extends Component {
         </p>
         <div className='combined-market-view'>
           <div className='market-select center-block'>
-            <select
-              className='form-control'
-              title='Select a market to view...'
-              id='market_select'
-            >
-              <option>Select a market to view...</option>
-              {marketItems}
-            </select>
+          <Select
+            value={this.state.selected_market}
+            onChange={this.marketSelected}
+            options={marketOptions}
+          />
           </div>
           { this.state.selected_market &&
           <div className='market-view center-block'>
@@ -74,6 +74,23 @@ class App extends Component {
               <Col lg={3}>
                 <div className='grid-title'>Market Summary</div>
                 <br />
+                <p>
+                  <div>Selected Market: {this.state.selected_market.label}</div>
+                  <div>
+                  <div>Poloniex</div>
+                    <div>Last: {selected_market_data.poloniex.last}</div>
+                    <div>Low: {selected_market_data.poloniex.low}</div>
+                    <div>High: {selected_market_data.poloniex.high} </div>
+                    <div>Volume: {selected_market_data.poloniex.volume}</div>
+                  </div>
+                  <div>
+                  <div>Bittrex</div>
+                  <div>Last: {selected_market_data.bittrex.last}</div>
+                    <div>Low: {selected_market_data.bittrex.low}</div>
+                    <div>High: {selected_market_data.bittrex.high}</div>
+                    <div>Volume: {selected_market_data.bittrex.volume}</div>
+                  </div>
+                </p>
               </Col>
               <Col lg={3}>
                 <div className='grid-title'>Bids</div>
