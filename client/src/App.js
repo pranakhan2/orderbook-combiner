@@ -155,6 +155,7 @@ class App extends Component {
       this.state.selected_market 
         ? this.state.market_data[this.state.selected_market.value].data : null
     );
+    const pointformat = format('.8f');
     return (
       <div className="App">
         <header className="App-header">
@@ -177,51 +178,55 @@ class App extends Component {
           <div className='market-view center-block'>
           <Grid>
             <Row className="show-grid">
-              <Col lg={3}>
-                <div className='grid-title'>Market Summary</div>
-                <div>
-                  <div>Selected Market: {this.state.selected_market.label}</div>
+              <Col sm={2} md={2}>
+                <div style={{width: "250px"}}>
+                  <div className='grid-title'>Market Summary</div>
                   <div>
-                  <div>Poloniex</div>
-                    <div>Last: {selected_market_data.poloniex.last}</div>
-                    <div>Low: {selected_market_data.poloniex.low}</div>
-                    <div>High: {selected_market_data.poloniex.high} </div>
-                    <div>Volume: {selected_market_data.poloniex.volume}</div>
-                  </div>
-                  <div>
-                  <div>Bittrex</div>
-                  <div>Last: {selected_market_data.bittrex.last}</div>
-                    <div>Low: {selected_market_data.bittrex.low}</div>
-                    <div>High: {selected_market_data.bittrex.high}</div>
-                    <div>Volume: {selected_market_data.bittrex.volume}</div>
+                    <div>Selected Market: {this.state.selected_market.label}</div>
+                    <div>
+                    <div>Poloniex</div>
+                      <div>Last: {pointformat(selected_market_data.poloniex.last)}</div>
+                      <div>Low: {pointformat(selected_market_data.poloniex.low)}</div>
+                      <div>High: {pointformat(selected_market_data.poloniex.high)} </div>
+                      <div>Volume: {selected_market_data.poloniex.volume}</div>
+                    </div>
+                    <div>
+                    <div>Bittrex</div>
+                    <div>Last: {pointformat(selected_market_data.bittrex.last)}</div>
+                      <div>Low: {pointformat(selected_market_data.bittrex.low)}</div>
+                      <div>High: {pointformat(selected_market_data.bittrex.high)}</div>
+                      <div>Volume: {selected_market_data.bittrex.volume}</div>
+                    </div>
                   </div>
                 </div>
               </Col>
-               <Col lg={3}>
-                <div className='grid-title'>Sell</div>
-                <br />
-                <AreaChart width={600} height={400} data={this.state.chart_data.sell}
-                    margin={{top: 10, right: 30, left: 0, bottom: 0}}>
-                  <CartesianGrid strokeDasharray="3 3"/>
-                  <XAxis dataKey="price"/>
-                  <YAxis/>
-                  <Tooltip/>
-                  <Area type='monotone' dataKey='b_volume' stackId="1" stroke='#8884d8' fill='#8884d8' />
-                  <Area type='monotone' dataKey='p_volume' stackId="1" stroke='#82ca9d' fill='#82ca9d' />
-                </AreaChart>
-              </Col> 
-              <Col lg={3}>
-                <div className='grid-title'>Buy</div>
-                <br />
-                  <AreaChart width={600} height={400} data={this.state.chart_data.buy}
-                    margin={{top: 10, right: 30, left: 0, bottom: 0}}>
-                  <CartesianGrid strokeDasharray="3 3"/>
-                  <XAxis dataKey="price"/>
-                  <YAxis/>
-                  <Tooltip/>
-                  <Area type='monotone' dataKey='b_volume' stackId="1" stroke='#8884d8' fill='#8884d8' />
-                  <Area type='monotone' dataKey='p_volume' stackId="1" stroke='#82ca9d' fill='#82ca9d' />
-                </AreaChart>
+               <Col sm={2} md={2}>
+                <div style={{display: "flex"}}>
+                  <div>
+                    <div className='grid-title'>Sell</div>
+                    <AreaChart width={300} height={300} data={this.state.chart_data.sell}
+                        margin={{top: 10, right: 0, left: 0, bottom: 0}}>
+                      <CartesianGrid strokeDasharray="3 3"/>
+                      <XAxis dataKey="price" reversed/>
+                      <YAxis/>
+                      <Tooltip/>
+                      <Area type='monotone' dataKey='b_volume' stackId="1" stroke='#8884d8' fill='#8884d8' />
+                      <Area type='monotone' dataKey='p_volume' stackId="1" stroke='#82ca9d' fill='#82ca9d' />
+                    </AreaChart>
+                  </div>
+                  <div>
+                    <div className='grid-title'>Buy</div>
+                      <AreaChart width={300} height={300} data={this.state.chart_data.buy}
+                        margin={{top: 10, right: 0, left: 0, bottom: 0}}>
+                      <CartesianGrid strokeDasharray="3 3"/>
+                      <XAxis dataKey="price"/>
+                      <YAxis orientation="right"/>
+                      <Tooltip/>
+                      <Area type='monotone' dataKey='b_volume' stackId="1" stroke='#8884d8' fill='#8884d8' />
+                      <Area type='monotone' dataKey='p_volume' stackId="1" stroke='#82ca9d' fill='#82ca9d' />
+                    </AreaChart>
+                  </div>
+                </div>
               </Col>  
             </Row>
           </Grid>         
