@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "d3": "^5.7.0",
+    "d3-array": "^1.2.4",
+    "d3-format": "^1.3.2",
+    "d3-scale": "^2.1.2",
     "react": "^16.5.2",
     "react-bootstrap": "^0.32.4",
     "react-dom": "^16.5.2",

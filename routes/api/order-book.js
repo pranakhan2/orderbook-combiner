@@ -71,7 +71,7 @@ app.get('/api/get-market-data', (req, res) => {
  // /api/get-order-books/:pair where :pair is the currency pair we want to look 
  // at defined in the format: XXX-YYY, ie: BTC-ETH, BTC-USD, etc.
  // use the endpoint /api/get-pairs to get the currency pairs available on both exchanges
- app.get('/api/get-order-books', (req, res) => {
+ app.get('/api/get-order-books/:market', (req, res) => {
     // retreive order book data from Poloniex and Bittrex and 
     // return to the client to chart. 
     // We'll do the order book data munging prior to plotting on the client
@@ -80,18 +80,35 @@ app.get('/api/get-market-data', (req, res) => {
     // as quickly as possible.
   
     // retreive Bittrex order book data for BTC_ETH market
-    const bittrex_url = 'https://bittrex.com/api/v1.1/public/getorderbook?market=BTC-ETH&type=both';
-    const poloniex_url = 'https://poloniex.com/public?command=returnOrderBook&currencyPair=BTC_ETH&depth=100';
+    const bittrex_url = `https://bittrex.com/api/v1.1/public/getorderbook?market=${req.params.market.replace('_', '-')}&type=both`;
+    const poloniex_url = `https://poloniex.com/public?command=returnOrderBook&currencyPair=${req.params.market}&depth=100`;
 
     // retrieve the two order books in "parallel"
     Promise.all([
       fetch(bittrex_url).then(res => res.json()),
       fetch(poloniex_url).then(res => res.json()),
     ]).then(values => {
+      // munge the poloniex orderbook data into similar formats then 
       // store the returned orderbook data into an orderbooks object
+
+      let p_data = {
+        buy:  values[1].bids.map((d) => { 
+          return {
+            Quantity: d[1],
+            Rate: d[0],
+          }; 
+        }),
+        sell: values[1].asks.map((d) => {
+          return {
+            Quantity: d[1],
+            Rate: d[0],
+          }
+        }),
+      }; 
+
       let orderbooks = {
         bittrex_data: values[0].result,
-        poloniex_data: values[1],
+        poloniex_data: p_data,
       };
       // send the result back to the client
       res.json(orderbooks);
