@@ -40,3 +40,13 @@
 .market-select {
   width: 300px;
 }
+
+.market_summary {
+  width: 300px;
+  padding-right: 15px;
+}
+
+.depth-chart {
+  display: flex;
+  width: 900px;
+}

@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
+import React, { Component, createClass } from 'react';
 import { Grid, Row, Col } from 'react-bootstrap';
 import Select from 'react-select';
-import { extent, pairs, ticks, range, merge } from 'd3-array';
+import { extent, pairs, ticks, range, merge, max } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
 import { format } from 'd3-format';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
@@ -64,14 +64,38 @@ class App extends Component {
     // generate a matching series of data for each order book that we can then easily
     // plot in a stack area or any other kind of chart we choose.
 
+    // I had to do a LOT of data munging here to get this working properly as
+    // a conbined orderbook depth chart, im sure there are several optimizations
+    // and modularizations I could do to make it better. 
+
     let p_data = data.poloniex_data;
     let b_data = data.bittrex_data;
 
-    // PROCESS BUY ORDERS FIRST!
-    // 1. get the extents of the price ranges for each order book for the x-axis
+    // generate the plottable data. we'll also need to get matching Y-Axis scales for
+    // both graphs so they plot relative to each other.
+
+    let buy_series = this.createDataSeries(p_data.buy, b_data.buy, false),
+        sell_series = this.createDataSeries(p_data.sell, b_data.sell, true);
+
+    // calculate the max of the y_axis on both series and get our y-axis max range
+    let y_axis_buy_max = [
+      max(buy_series, (d) => { return d.p_volume; }), 
+      max(buy_series, (d) => { return d.b_volume; }),
+    ].reduce((a, v) => { return a + v; });
+
+    let y_axis_sell_max = [
+      max(sell_series, (d) => { return d.p_volume; }), 
+      max(sell_series, (d) => { return d.b_volume; }),
+    ].reduce((a, v) => { return a + v; });
+
+    let y_axis_max_range = Math.ceil(max([y_axis_buy_max, y_axis_sell_max]));
+
+    console.log('y_axis_max_range: ', y_axis_max_range);
+
     let chart_data = {
-      buy: this.createDataSeries(p_data.buy, b_data.buy, false),
-      sell: this.createDataSeries(p_data.sell, b_data.sell, true),
+      buy: buy_series,
+      sell: sell_series,
+      y_axis_max_range,
     };
 
     console.log('chart_data: ', chart_data);
@@ -148,18 +172,47 @@ class App extends Component {
   }
 
   render() {
+    
     let marketOptions = Object.keys(this.state.market_data).map((market_name) => {
       return { value: market_name, label: market_name };
+    }).sort(function (a, b) {
+      if (a.label < b.label) return -1;
+      else if (a.label > b.label) return 1;
+      return 0;
     }); 
+    
     let selected_market_data = (
       this.state.selected_market 
         ? this.state.market_data[this.state.selected_market.value].data : null
     );
+    
     const pointformat = format('.8f');
+
+    // Eventully I plan to clean up the Tooltip and make it more user friendly and
+    // pretty, for now, in the interest of time, I'll leave this for later.
+    class CustomTooltip extends React.Component {
+      render() {
+        const { active } = this.props;
+    
+        console.log('tooltip props: ', this.props);
+
+        if (active) {
+          const { payload, label } = this.props;
+          return (
+            <div className="custom-tooltip">
+              <p className="label">{`${label} : ${payload[0].value}`}</p>
+            </div>
+          );
+        }
+    
+        return null;
+      }
+    }
+    
     return (
       <div className="App">
         <header className="App-header">
-          <h1 className="App-title">Combined Order Book Experiement</h1>
+          <h1 className="App-title">Combined Order Book Experiment</h1>
         </header>
         <p className="App-intro">
           To load and display combined order book information from the Poloniex and Bittrex exchanges,
@@ -179,19 +232,19 @@ class App extends Component {
           <Grid>
             <Row className="show-grid">
               <Col sm={2} md={2}>
-                <div style={{width: "250px"}}>
+                <div className='market-summary'>
                   <div className='grid-title'>Market Summary</div>
                   <div>
                     <div>Selected Market: {this.state.selected_market.label}</div>
                     <div>
-                    <div>Poloniex</div>
+                    <div><b>Poloniex</b></div>
                       <div>Last: {pointformat(selected_market_data.poloniex.last)}</div>
                       <div>Low: {pointformat(selected_market_data.poloniex.low)}</div>
                       <div>High: {pointformat(selected_market_data.poloniex.high)} </div>
                       <div>Volume: {selected_market_data.poloniex.volume}</div>
                     </div>
                     <div>
-                    <div>Bittrex</div>
+                    <div><b>Bittrex</b></div>
                     <div>Last: {pointformat(selected_market_data.bittrex.last)}</div>
                       <div>Low: {pointformat(selected_market_data.bittrex.low)}</div>
                       <div>High: {pointformat(selected_market_data.bittrex.high)}</div>
@@ -201,14 +254,14 @@ class App extends Component {
                 </div>
               </Col>
                <Col sm={2} md={2}>
-                <div style={{display: "flex"}}>
+                <div className='depth-chart'>
                   <div>
                     <div className='grid-title'>Sell</div>
                     <AreaChart width={300} height={300} data={this.state.chart_data.sell}
                         margin={{top: 10, right: 0, left: 0, bottom: 0}}>
                       <CartesianGrid strokeDasharray="3 3"/>
                       <XAxis dataKey="price" reversed/>
-                      <YAxis/>
+                      <YAxis type="number" domain={[0, this.state.chart_data.y_axis_max_range]}/>
                       <Tooltip/>
                       <Area type='monotone' dataKey='b_volume' stackId="1" stroke='#8884d8' fill='#8884d8' />
                       <Area type='monotone' dataKey='p_volume' stackId="1" stroke='#82ca9d' fill='#82ca9d' />
@@ -220,7 +273,7 @@ class App extends Component {
                         margin={{top: 10, right: 0, left: 0, bottom: 0}}>
                       <CartesianGrid strokeDasharray="3 3"/>
                       <XAxis dataKey="price"/>
-                      <YAxis orientation="right"/>
+                      <YAxis  type="number" domain={[0, this.state.chart_data.y_axis_max_range]} orientation="right"/>
                       <Tooltip/>
                       <Area type='monotone' dataKey='b_volume' stackId="1" stroke='#8884d8' fill='#8884d8' />
                       <Area type='monotone' dataKey='p_volume' stackId="1" stroke='#82ca9d' fill='#82ca9d' />
