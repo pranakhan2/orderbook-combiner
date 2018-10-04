@@ -213,6 +213,7 @@ class App extends Component {
       <div className="App">
         <header className="App-header">
           <h1 className="App-title">Combined Order Book Experiment</h1>
+          <h4>Andy Carrasco</h4>
         </header>
         <p className="App-intro">
           To load and display combined order book information from the Poloniex and Bittrex exchanges,
