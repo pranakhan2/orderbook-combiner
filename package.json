@@ -1,5 +1,5 @@
 {
-  "name": "OrderBook Combiner Experiment Server",
+  "name": "orderbook-combiner-server",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",

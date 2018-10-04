@@ -1,5 +1,5 @@
 {
-  "name": "OrderBook Combiner Experiment Client",
+  "name": "orderbook-combiner-client",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
