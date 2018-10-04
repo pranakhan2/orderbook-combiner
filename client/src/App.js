@@ -257,7 +257,7 @@ class App extends Component {
                <Col sm={2} md={2}>
                 <div className='depth-chart'>
                   <div>
-                    <div className='grid-title'>Sell</div>
+                    <div className='grid-title'>Asks</div>
                     <AreaChart width={300} height={300} data={this.state.chart_data.sell}
                         margin={{top: 10, right: 0, left: 0, bottom: 0}}>
                       <CartesianGrid strokeDasharray="3 3"/>
@@ -269,7 +269,7 @@ class App extends Component {
                     </AreaChart>
                   </div>
                   <div>
-                    <div className='grid-title'>Buy</div>
+                    <div className='grid-title'>Bids</div>
                       <AreaChart width={300} height={300} data={this.state.chart_data.buy}
                         margin={{top: 10, right: 0, left: 0, bottom: 0}}>
                       <CartesianGrid strokeDasharray="3 3"/>
