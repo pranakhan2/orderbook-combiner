@@ -163,8 +163,8 @@ class App extends Component {
 
       return {
         price: range_pair[0],
-        p_volume: p_accum,
-        b_volume: b_accum,
+        poloniex: p_accum,
+        bittrex: b_accum,
       };
     });
 
@@ -264,8 +264,8 @@ class App extends Component {
                       <XAxis dataKey="price" reversed/>
                       <YAxis type="number" domain={[0, this.state.chart_data.y_axis_max_range]}/>
                       <Tooltip/>
-                      <Area type='monotone' dataKey='b_volume' stackId="1" stroke='#8884d8' fill='#8884d8' />
-                      <Area type='monotone' dataKey='p_volume' stackId="1" stroke='#82ca9d' fill='#82ca9d' />
+                      <Area type='monotone' dataKey='bittrex' stackId="1" stroke='#8884d8' fill='#8884d8' />
+                      <Area type='monotone' dataKey='poloniex' stackId="1" stroke='#82ca9d' fill='#82ca9d' />
                     </AreaChart>
                   </div>
                   <div>
@@ -276,8 +276,8 @@ class App extends Component {
                       <XAxis dataKey="price"/>
                       <YAxis  type="number" domain={[0, this.state.chart_data.y_axis_max_range]} orientation="right"/>
                       <Tooltip/>
-                      <Area type='monotone' dataKey='b_volume' stackId="1" stroke='#8884d8' fill='#8884d8' />
-                      <Area type='monotone' dataKey='p_volume' stackId="1" stroke='#82ca9d' fill='#82ca9d' />
+                      <Area type='monotone' dataKey='bittrex' stackId="1" stroke='#8884d8' fill='#8884d8' />
+                      <Area type='monotone' dataKey='poloniex' stackId="1" stroke='#82ca9d' fill='#82ca9d' />
                     </AreaChart>
                   </div>
                 </div>

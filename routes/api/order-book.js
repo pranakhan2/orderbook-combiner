@@ -2,14 +2,23 @@ const fetch = require('node-fetch');
 
 module.exports = (app) => {
 
+// a little resuable error handler for fetch
+const handleFetchError = (response) => {
+  if (!response.ok) {
+    console.log('fetch Error: ', response);
+    throw Error(response.statusText);
+  }
+  return response;
+};
+
 app.get('/api/get-market-data', (req, res) => {
   // get a list of currency pairs available from both exchanges
   const poloniex_url = 'https://poloniex.com/public?command=returnTicker';
   const bittrex_url = 'https://bittrex.com/api/v1.1/public/getmarketsummaries';
 
   Promise.all([
-    fetch(poloniex_url).then(res => res.json()),
-    fetch(bittrex_url).then(res => res.json()),
+    fetch(poloniex_url).then(handleFetchError).then(res => res.json()),
+    fetch(bittrex_url).then(handleFetchError).then(res => res.json()),
   ]).then(([poloniex, bittrex]) => {
 
     let bittrex_raw_data = bittrex.result,
@@ -85,12 +94,16 @@ app.get('/api/get-market-data', (req, res) => {
 
     // retrieve the two order books in "parallel"
     Promise.all([
-      fetch(bittrex_url).then(res => res.json()),
-      fetch(poloniex_url).then(res => res.json()),
+      fetch(bittrex_url).then(handleFetchError).then(res => res.json()),
+      fetch(poloniex_url).then(handleFetchError).then(res => res.json()),
     ]).then(values => {
+      // what happens if there is an error? poloniex went into maintenance mode while I 
+      // was working on this. Need to handle this problem better.
+
+      console.log('poloniex response: ', values[1]);
+
       // munge the poloniex orderbook data into similar formats then 
       // store the returned orderbook data into an orderbooks object
-
       let p_data = {
         buy:  values[1].bids.map((d) => { 
           return {
