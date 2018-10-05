@@ -100,8 +100,6 @@ app.get('/api/get-market-data', (req, res) => {
       // what happens if there is an error? poloniex went into maintenance mode while I 
       // was working on this. Need to handle this problem better.
 
-      console.log('poloniex response: ', values[1]);
-
       // munge the poloniex orderbook data into similar formats then 
       // store the returned orderbook data into an orderbooks object
       let p_data = {
