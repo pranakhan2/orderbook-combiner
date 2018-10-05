@@ -79,13 +79,13 @@ class App extends Component {
 
     // calculate the max of the y_axis on both series and get our y-axis max range
     let y_axis_buy_max = [
-      max(buy_series, (d) => { return d.p_volume; }), 
-      max(buy_series, (d) => { return d.b_volume; }),
+      max(buy_series, (d) => { return d.poloniex; }), 
+      max(buy_series, (d) => { return d.bittrex; }),
     ].reduce((a, v) => { return a + v; });
 
     let y_axis_sell_max = [
-      max(sell_series, (d) => { return d.p_volume; }), 
-      max(sell_series, (d) => { return d.b_volume; }),
+      max(sell_series, (d) => { return d.poloniex; }), 
+      max(sell_series, (d) => { return d.bittrex; }),
     ].reduce((a, v) => { return a + v; });
 
     let y_axis_max_range = Math.ceil(max([y_axis_buy_max, y_axis_sell_max]));
